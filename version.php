@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2016101702;
-$plugin->release   = '1';
+$plugin->version   = 2016110801;
+$plugin->release   = '1.1';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->requires  = 2014051200; // Moodle 2.7 release and upwards.
 $plugin->component = 'local_categorycreation';

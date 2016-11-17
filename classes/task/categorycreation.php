@@ -125,6 +125,7 @@ class categorycreation extends \core\task\scheduled_task {
                     // Update path (only possible after we know the category id).
                     $path = $parent->path . '/' . $data['id'];
                     $DB->set_field('course_categories', 'path', $path, array('id' => $data['id']));
+
                 } else {
                     // IF category already exists, fetch the existing id.
                     $data['id'] = $DB->get_field('course_categories', 'id', array('idnumber' => $category->category_idnumber));
@@ -132,6 +133,26 @@ class categorycreation extends \core\task\scheduled_task {
                     $data['path'] = $parent->path . '/' . $data['id'];
                     // As category already exists, update it with any changes.
                     $DB->update_record('course_categories', $data);
+                }
+
+                // Create cohort for this category.
+                    $cohort_data = array();
+                    $cohort_data['contextid'] = 1; // Check context for SITE - on LIVE it will be 3
+                    $cohort_data['name'] = $category->category_name;
+                    $cohort_data['idnumber'] = $category->category_idnumber;
+                    $cohort_data['description'] = '';
+                    $cohort_data['descriptionformat'] = '';
+                    $cohort_data['visible'] = 1;
+                    $cohort_data['component'] = '';
+                    $cohort_data['timecreated'] = time();
+                    $cohort_data['timemodified'] = 0;
+
+                if (!$DB->record_exists('cohort',array('idnumber' => $category->category_idnumber))) {
+
+                    $DB->insert_record('cohort', $cohort_data);
+                } else {
+                    $cohort_data['id'] = $DB->get_field('cohort', 'id', array('idnumber' => $category->category_idnumber));
+                    $DB->update_record('cohort', $cohort_data);
                 }
 
                 // Use core function to adjust sort order as appropriate.
@@ -169,12 +190,15 @@ class categorycreation extends \core\task\scheduled_task {
                 $DB->update_record('context', $record);
 
                         /* TO-DO: Add code to check courses are in the correct category -
-                        * PSUEDO CODE -DO NOT USE AS IS!
-                        * UPDATE SET mdl_course.category = mdl_course_categories.id
-                        * WHERE mdl_course.idnumber = usr_course_creation.idnumber AND
-                        * user_course_creation.categoryidnumber = $category->idnumber.
+                        * Courses don't have path or context_path in table, so simply adjusting the category should be fine.
+                        *
+                        * ASSUME - courses already exist in a category, that category is determined in the mdl_course table by mdl_course.category
+                        * If category details change, irrelevant, mdl_course.category  wont change
+                        * If course changes category then usr_data_object_categories.category_idnumber will change, but usr_ro_modules takes all
+                        * 'course' creation sources into a single table with mdl_course_categories.id already added:
+                        * THIS CODE SHOULD GO THERE!!!
+                        *
                         */
-
             }
         }
         // Context maintenance stuff.
@@ -185,11 +209,12 @@ class categorycreation extends \core\task\scheduled_task {
         // replace the line below with: context_helper::build_all_paths(true).
 
         // Add category.id to source data table based on category.idnumber for auto creation of overarching course pages.
-        $sourcetable = 'usr_data_domain_categories';
-        $sql = 'UPDATE ' . $sourcetable . '
-            INNER JOIN mdl_course_categories ON '.$sourcetable.'.category_idnumber = mdl_course_categories.idnumber
-            SET category_id = mdl_course_categories.id';
-        $DB->execute($sql);
+        // To be done in course creation table, incorporating sandboxes etc.
+//        $sourcetable = 'usr_data_courses';
+//        $sql = 'UPDATE ' . $sourcetable . '
+//            INNER JOIN mdl_course_categories ON '.$sourcetable.'.category_idnumber = mdl_course_categories.idnumber
+//            SET category_id = mdl_course_categories.id';
+//        $DB->execute($sql);
 
     }
 }
