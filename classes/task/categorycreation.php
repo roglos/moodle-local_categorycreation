@@ -82,7 +82,7 @@ print_r($levels);
                 }
 
                 // If no name is set, make name = idnumber.
-                if (isset($category->category_name) || $category->category_name != 'Undefined') {
+                if (isset($category->category_name) && $category->category_name !== 'Undefined') {
                     $data['name'] = $category->category_name;
                 } else {
                     $data['name'] = $category->category_idnumber;
