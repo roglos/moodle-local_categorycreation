@@ -52,11 +52,17 @@ class categorycreation extends \core\task\scheduled_task {
 
         global $CFG, $DB;
         require_once($CFG->libdir . "/coursecatlib.php");
-        $levels = array('FAC', 'SCH', 'SUB', 'DOM');
+        $leveltable = 'usr_data_categorylevels';
+        $levelsql = 'SELECT * FROM ' . $leveltable . ' WHERE inuse = 1 ORDER BY rank ASC;';
+        $levelparams = null;
+        $levels = $DB->get_records_sql($levelsql, $levelparams);
+        // $levels = array('FAC', 'SCH', 'SUB', 'DOM');
+print_r($levels);
         /* Table name: This table should contain id:category name:category parent (in this case
          * using a unique idnumber as parent->id is not necessarily known):category idnumber (as
          * a unique identifier). */
-        foreach ($levels as $level) {
+        foreach ($levels as $l) {
+            $level = $l->categorylevel;
             $table = 'usr_data_categories';
             $sql = 'SELECT * FROM ' . $table . ' WHERE category_idnumber LIKE "' . $level .'-%"';
             $params = null;
@@ -76,7 +82,7 @@ class categorycreation extends \core\task\scheduled_task {
                 }
 
                 // If no name is set, make name = idnumber.
-                if (isset($category->category_name)) {
+                if (isset($category->category_name) || $category->category_name != 'Undefined') {
                     $data['name'] = $category->category_name;
                 } else {
                     $data['name'] = $category->category_idnumber;
@@ -215,6 +221,7 @@ class categorycreation extends \core\task\scheduled_task {
 //            INNER JOIN mdl_course_categories ON '.$sourcetable.'.category_idnumber = mdl_course_categories.idnumber
 //            SET category_id = mdl_course_categories.id';
 //        $DB->execute($sql);
+
 
     }
 }
