@@ -181,8 +181,8 @@ class categorycreation extends \core\task\scheduled_task {
                     $studentcohort__data['contextid'] = $record['id']; // ********************* Add cohorts to context for category rather than site
                     $staffcohort_data['name'] = "Staff_" . $category->category_name;
                     $studentcohort__data['name'] = "Student_" . $category->category_name;
-                    $staffcohort_data['idnumber'] = $category->category_idnumber;
-                    $studentcohort__data['idnumber'] = $category->category_idnumber;
+                    $staffcohort_data['idnumber'] = "Staff_" . $category->category_idnumber;
+                    $studentcohort__data['idnumber'] = "Stu_" . $category->category_idnumber;
                     $staffcohort_data['description'] = '';
                     $studentcohort__data['description'] = '';
                     $staffcohort_data['descriptionformat'] = '';
