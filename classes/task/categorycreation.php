@@ -56,12 +56,11 @@ class categorycreation extends \core\task\scheduled_task {
         $levelsql = 'SELECT * FROM ' . $leveltable . ' WHERE inuse = 1 ORDER BY rank ASC;';
         $levelparams = null;
         $levels = $DB->get_records_sql($levelsql, $levelparams);
-        // $levels = array('FAC', 'SCH', 'SUB', 'DOM');
-print_r($levels);
+
         /* Table name: This table should contain id:category name:category parent (in this case
          * using a unique idnumber as parent->id is not necessarily known):category idnumber (as
          * a unique identifier). */
-        foreach ($levels as $l) {
+        foreach ($levels as $l) { // Loop through each level in turn to create a tree.
             $level = $l->categorylevel;
             $table = 'usr_data_categories';
             $sql = 'SELECT * FROM ' . $table . ' WHERE category_idnumber LIKE "' . $level .'-%"';
@@ -141,29 +140,6 @@ print_r($levels);
                     $DB->update_record('course_categories', $data);
                 }
 
-                // Create cohort for this category.
-                    $cohort_data = array();
-                    $cohort_data['contextid'] = 1; // Check context for SITE - on LIVE it will be 3
-                    $cohort_data['name'] = $category->category_name;
-                    $cohort_data['idnumber'] = $category->category_idnumber;
-                    $cohort_data['description'] = '';
-                    $cohort_data['descriptionformat'] = '';
-                    $cohort_data['visible'] = 1;
-                    $cohort_data['component'] = '';
-                    $cohort_data['timecreated'] = time();
-                    $cohort_data['timemodified'] = 0;
-
-                if (!$DB->record_exists('cohort',array('idnumber' => $category->category_idnumber))) {
-
-                    $DB->insert_record('cohort', $cohort_data);
-                } else {
-                    $cohort_data['id'] = $DB->get_field('cohort', 'id', array('idnumber' => $category->category_idnumber));
-                    $DB->update_record('cohort', $cohort_data);
-                }
-
-                // Use core function to adjust sort order as appropriate.
-                fix_course_sortorder();
-
                 // Set values to write to mdl_context table.
                 $record['contextlevel'] = 40;
                 $record['instanceid']   = $data['id'];
@@ -195,16 +171,46 @@ print_r($levels);
                 $record['depth'] = $parentdepth + 1;
                 $DB->update_record('context', $record);
 
-                        /* TO-DO: Add code to check courses are in the correct category -
-                        * Courses don't have path or context_path in table, so simply adjusting the category should be fine.
-                        *
-                        * ASSUME - courses already exist in a category, that category is determined in the mdl_course table by mdl_course.category
-                        * If category details change, irrelevant, mdl_course.category  wont change
-                        * If course changes category then usr_data_object_categories.category_idnumber will change, but usr_ro_modules takes all
-                        * 'course' creation sources into a single table with mdl_course_categories.id already added:
-                        * THIS CODE SHOULD GO THERE!!!
-                        *
-                        */
+                // Use core function to adjust sort order as appropriate.
+                fix_course_sortorder();
+
+                // Create Staff and Student cohorts for this category.
+                    $staffcohort_data = array();
+                    $studentcohort__data = array();
+                    $staffcohort_data['contextid'] = $record['id']; // ********************* Add cohorts to context for category rather than site
+                    $studentcohort__data['contextid'] = $record['id']; // ********************* Add cohorts to context for category rather than site
+                    $staffcohort_data['name'] = "Staff_" . $category->category_name;
+                    $studentcohort__data['name'] = "Student_" . $category->category_name;
+                    $staffcohort_data['idnumber'] = $category->category_idnumber;
+                    $studentcohort__data['idnumber'] = $category->category_idnumber;
+                    $staffcohort_data['description'] = '';
+                    $studentcohort__data['description'] = '';
+                    $staffcohort_data['descriptionformat'] = '';
+                    $studentcohort__data['descriptionformat'] = '';
+                    $staffcohort_data['visible'] = 1;
+                    $studentcohort__data['visible'] = 1;
+                    $studentcohort__data['component'] = '';
+                    $staffcohort_data['component'] = '';
+                    $staffcohort_data['timecreated'] = time();
+                    $studentcohort__data['timecreated'] = time();
+                    $staffcohort_data['timemodified'] = 0;
+                    $studentcohort__data['timemodified'] = 0;
+
+                // Write Staff cohort to Db if it doesn't exist - update if it does.
+                if (!$DB->record_exists('cohort',array('idnumber' => $category->category_idnumber))) {
+                    $DB->insert_record('cohort', $staffcohort_data);
+                } else {
+                    $staffcohort_data['id'] = $DB->get_field('cohort', 'id', array('idnumber' => $category->category_idnumber));
+                    $DB->update_record('cohort', $staffcohort_data);
+                }
+                // Write student cohort to Db if it doesn't exist - update if it does.
+                if (!$DB->record_exists('cohort',array('idnumber' => $category->category_idnumber))) {
+                    $DB->insert_record('cohort', $studentcohort__data);
+                } else {
+                    $studentcohort__data['id'] = $DB->get_field('cohort', 'id', array('idnumber' => $category->category_idnumber));
+                    $DB->update_record('cohort', $studentcohort__data);
+                }
+
             }
         }
         // Context maintenance stuff.
@@ -213,15 +219,6 @@ print_r($levels);
         \context_helper::build_all_paths(false);
         // If you suspect that the context paths are somehow corrupt
         // replace the line below with: context_helper::build_all_paths(true).
-
-        // Add category.id to source data table based on category.idnumber for auto creation of overarching course pages.
-        // To be done in course creation table, incorporating sandboxes etc.
-//        $sourcetable = 'usr_data_courses';
-//        $sql = 'UPDATE ' . $sourcetable . '
-//            INNER JOIN mdl_course_categories ON '.$sourcetable.'.category_idnumber = mdl_course_categories.idnumber
-//            SET category_id = mdl_course_categories.id';
-//        $DB->execute($sql);
-
 
     }
 }
