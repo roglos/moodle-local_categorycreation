@@ -177,16 +177,16 @@ class categorycreation extends \core\task\scheduled_task {
                 // Create Staff and Student cohorts for this category.
                     $staffcohort_data = array();
                     $studentcohort__data = array();
-                    $staffcohort_data['contextid'] = $record['id']; // ********************* Add cohorts to context for category rather than site
-                    $studentcohort__data['contextid'] = $record['id']; // ********************* Add cohorts to context for category rather than site
+                    $staffcohort_data['contextid'] = $record['id']; // Add cohorts to context for category rather than site
+                    $studentcohort__data['contextid'] = $record['id']; // Add cohorts to context for category rather than site
                     $staffcohort_data['name'] = "Staff_" . $category->category_name;
                     $studentcohort__data['name'] = "Student_" . $category->category_name;
                     $staffcohort_data['idnumber'] = "Staff_" . $category->category_idnumber;
                     $studentcohort__data['idnumber'] = "Stu_" . $category->category_idnumber;
-                    $staffcohort_data['description'] = '';
-                    $studentcohort__data['description'] = '';
-                    $staffcohort_data['descriptionformat'] = '';
-                    $studentcohort__data['descriptionformat'] = '';
+                    $staffcohort_data['description'] = 'Managed Category Cohort: Staff_' . $category->category_name;
+                    $studentcohort__data['description'] = 'Managed Category Cohort: Students_' . $category->category_name;
+                    $staffcohort_data['descriptionformat'] = FORMAT_MOODLE;
+                    $studentcohort__data['descriptionformat'] = FORMAT_MOODLE;
                     $staffcohort_data['visible'] = 1;
                     $studentcohort__data['visible'] = 1;
                     $studentcohort__data['component'] = '';
