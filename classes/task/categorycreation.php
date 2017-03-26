@@ -25,6 +25,8 @@
 namespace local_categorycreation\task;
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * A scheduled task for scripted database integrations.
  *
@@ -175,40 +177,40 @@ class categorycreation extends \core\task\scheduled_task {
                 fix_course_sortorder();
 
                 // Create Staff and Student cohorts for this category.
-                    $staffcohort_data = array();
-                    $studentcohort__data = array();
-                    $staffcohort_data['contextid'] = $record['id']; // Add cohorts to context for category rather than site
-                    $studentcohort__data['contextid'] = $record['id']; // Add cohorts to context for category rather than site
-                    $staffcohort_data['name'] = "Staff_" . $category->category_name;
-                    $studentcohort__data['name'] = "Student_" . $category->category_name;
-                    $staffcohort_data['idnumber'] = "Staff_" . $category->category_idnumber;
-                    $studentcohort__data['idnumber'] = "Stu_" . $category->category_idnumber;
-                    $staffcohort_data['description'] = 'Managed Category Cohort: Staff_' . $category->category_name;
-                    $studentcohort__data['description'] = 'Managed Category Cohort: Students_' . $category->category_name;
-                    $staffcohort_data['descriptionformat'] = FORMAT_MOODLE;
-                    $studentcohort__data['descriptionformat'] = FORMAT_MOODLE;
-                    $staffcohort_data['visible'] = 1;
-                    $studentcohort__data['visible'] = 1;
-                    $studentcohort__data['component'] = '';
-                    $staffcohort_data['component'] = '';
-                    $staffcohort_data['timecreated'] = time();
-                    $studentcohort__data['timecreated'] = time();
-                    $staffcohort_data['timemodified'] = 0;
-                    $studentcohort__data['timemodified'] = 0;
+                    $staffcohortdata = array();
+                    $studentcohortdata = array();
+                    $staffcohortdata['contextid'] = $record['id']; // Add cohorts to context for category rather than site.
+                    $studentcohortdata['contextid'] = $record['id']; // Add cohorts to context for category rather than site.
+                    $staffcohortdata['name'] = "Staff_" . $category->category_name;
+                    $studentcohortdata['name'] = "Student_" . $category->category_name;
+                    $staffcohortdata['idnumber'] = "Staff_" . $category->category_idnumber;
+                    $studentcohortdata['idnumber'] = "Stu_" . $category->category_idnumber;
+                    $staffcohortdata['description'] = 'Managed Category Cohort: Staff_' . $category->category_name;
+                    $studentcohortdata['description'] = 'Managed Category Cohort: Students_' . $category->category_name;
+                    $staffcohortdata['descriptionformat'] = FORMAT_MOODLE;
+                    $studentcohortdata['descriptionformat'] = FORMAT_MOODLE;
+                    $staffcohortdata['visible'] = 1;
+                    $studentcohortdata['visible'] = 1;
+                    $studentcohortdata['component'] = '';
+                    $staffcohortdata['component'] = '';
+                    $staffcohortdata['timecreated'] = time();
+                    $studentcohortdata['timecreated'] = time();
+                    $staffcohortdata['timemodified'] = 0;
+                    $studentcohortdata['timemodified'] = 0;
 
                 // Write Staff cohort to Db if it doesn't exist - update if it does.
-                if (!$DB->record_exists('cohort',array('idnumber' => $category->category_idnumber))) {
-                    $DB->insert_record('cohort', $staffcohort_data);
+                if (!$DB->record_exists('cohort', array('idnumber' => $category->category_idnumber))) {
+                    $DB->insert_record('cohort', $staffcohortdata);
                 } else {
-                    $staffcohort_data['id'] = $DB->get_field('cohort', 'id', array('idnumber' => $category->category_idnumber));
-                    $DB->update_record('cohort', $staffcohort_data);
+                    $staffcohortdata['id'] = $DB->get_field('cohort', 'id', array('idnumber' => $category->category_idnumber));
+                    $DB->update_record('cohort', $staffcohortdata);
                 }
                 // Write student cohort to Db if it doesn't exist - update if it does.
-                if (!$DB->record_exists('cohort',array('idnumber' => $category->category_idnumber))) {
-                    $DB->insert_record('cohort', $studentcohort__data);
+                if (!$DB->record_exists('cohort', array('idnumber' => $category->category_idnumber))) {
+                    $DB->insert_record('cohort', $studentcohortdata);
                 } else {
-                    $studentcohort__data['id'] = $DB->get_field('cohort', 'id', array('idnumber' => $category->category_idnumber));
-                    $DB->update_record('cohort', $studentcohort__data);
+                    $studentcohortdata['id'] = $DB->get_field('cohort', 'id', array('idnumber' => $category->category_idnumber));
+                    $DB->update_record('cohort', $studentcohortdata);
                 }
 
             }
