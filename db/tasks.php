@@ -29,7 +29,7 @@ $tasks = array(
     array(
         'classname' => 'local_categorycreation\task\categorycreation',
         'blocking' => 0,
-        'minute' => '*/15',
+        'minute' => '15',
         'hour' => '1',
         'day' => '*',
         'month' => '*',
