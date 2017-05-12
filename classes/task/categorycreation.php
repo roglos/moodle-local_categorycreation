@@ -89,8 +89,8 @@ class categorycreation extends \core\task\scheduled_task {
                     $data['name'] = $category->category_idnumber;
                 }
 
-                // Default $parent values as Top category, so if none set new category defaults to top level.
-                $parent = $DB->get_record('course_categories', array('id' => 1));
+                // Default $parent values as Misc category, to give base values and get initial record.
+                $parent = $DB->get_record('course_categories', array('name' => 'Miscellaneous'));
                 $parent->id = 0;
                 $parent->visible = 1;
                 $parent->depth = 0;
